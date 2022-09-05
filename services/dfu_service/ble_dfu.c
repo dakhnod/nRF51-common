@@ -5,6 +5,7 @@
 #include "sdk_macros.h"
 #include "ble_srv_common.h"
 #include "nrf_dfu_settings.h"
+#include "bootloader_secret.h"
 
 #define MAX_CTRL_POINT_RESP_PARAM_LEN 3
 
