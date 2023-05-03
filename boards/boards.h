@@ -37,6 +37,8 @@
   #include "custom_board.h"
 #elif defined(BOARD_WT51822_S4AT)
   #include "WT51822_S4AT.h"
+#elif defined(BOARD_WT51822_S4AT_FINGERPRINT)
+  #include "WT51822_S4AT_fingerprint.h"
 #elif defined(BOARD_BLE400)
   #include "BLE400.h"
 #elif defined(BOARD_BEACON_BIG)
