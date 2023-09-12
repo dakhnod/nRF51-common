@@ -47,6 +47,8 @@
   #include "beacon_round.h"
 #elif defined(BOARD_BEACON_SMALL_NC)
   #include "beacon_round_nc.h"
+#elif defined(BOARD_HOLYIOT_17095)
+  #include "HOLYIOT_17095.h"
 #else
 #error "Board is not defined"
 
