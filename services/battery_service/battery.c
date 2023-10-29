@@ -12,7 +12,6 @@ uint16_t ble_bas_level_handle;
 uint16_t ble_bas_voltage_handle;
 uint16_t ble_bas_connection_handle = BLE_CONN_HANDLE_INVALID;
 
-
 static void on_connect(ble_evt_t * p_ble_evt)
 {
     ble_bas_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
@@ -30,6 +29,26 @@ static void on_disconnect(ble_evt_t * p_ble_evt)
 
 uint16_t battery_voltage_get (void)
 {
+  static uint16_t result;
+#ifdef NRF52
+  NRF_SAADC->TASKS_STOP = 0;
+  NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_REFSEL_Internal << SAADC_CH_CONFIG_REFSEL_Pos;
+  NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_MODE_SE         << SAADC_CH_CONFIG_MODE_Pos;
+  NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_GAIN_Gain1_6      << SAADC_CH_CONFIG_GAIN_Pos;
+  NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_BURST_Disabled  << SAADC_CH_CONFIG_BURST_Pos;
+  NRF_SAADC->CH[0].PSELP = SAADC_CH_PSELP_PSELP_VDD;
+  NRF_SAADC->RESULT.PTR = (uint32_t) &result;
+  NRF_SAADC->RESULT.MAXCNT = 1;
+  NRF_SAADC->ENABLE = SAADC_ENABLE_ENABLE_Enabled;
+
+  NRF_SAADC->EVENTS_END = 0;
+  NRF_SAADC->TASKS_START = 1;
+  NRF_SAADC->TASKS_SAMPLE = 1;
+
+  while (!NRF_SAADC->EVENTS_END);
+  
+  return (uint16_t)(result * 0.6 /* REFERENCE */ * 6 /* GAIN */);
+#else
   // Configure ADC
   NRF_ADC->CONFIG = (ADC_CONFIG_RES_8bit << ADC_CONFIG_RES_Pos) |
     (ADC_CONFIG_INPSEL_SupplyOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) |
@@ -52,6 +71,7 @@ uint16_t battery_voltage_get (void)
   NRF_ADC->TASKS_STOP = 1;
     
   return vbat_current_in_mv;
+#endif
 }
 
 uint8_t level_get(uint16_t voltage){
