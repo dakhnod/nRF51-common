@@ -1,4 +1,5 @@
 #include "battery.h"
+#include "nrf_delay.h"
 
 
 #define INVALID_BATTERY_LEVEL 255
@@ -6,6 +7,8 @@
 
 #define BATTERY_VOLTAGE_MIN 1800.0
 #define BATTERY_VOLTAGE_MAX 3000.0
+
+#define ADC_DELAY_US 20
 
 uint16_t ble_bas_service_handle;
 uint16_t ble_bas_level_handle;
@@ -29,24 +32,42 @@ static void on_disconnect(ble_evt_t * p_ble_evt)
 
 uint16_t battery_voltage_get (void)
 {
-  static uint16_t result;
 #ifdef NRF52
-  NRF_SAADC->TASKS_STOP = 0;
+  static uint16_t result;
   NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_REFSEL_Internal << SAADC_CH_CONFIG_REFSEL_Pos;
   NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_MODE_SE         << SAADC_CH_CONFIG_MODE_Pos;
-  NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_GAIN_Gain1_6      << SAADC_CH_CONFIG_GAIN_Pos;
+  NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_GAIN_Gain1_6    << SAADC_CH_CONFIG_GAIN_Pos;
   NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_BURST_Disabled  << SAADC_CH_CONFIG_BURST_Pos;
   NRF_SAADC->CH[0].PSELP = SAADC_CH_PSELP_PSELP_VDD;
   NRF_SAADC->RESULT.PTR = (uint32_t) &result;
   NRF_SAADC->RESULT.MAXCNT = 1;
   NRF_SAADC->ENABLE = SAADC_ENABLE_ENABLE_Enabled;
 
-  NRF_SAADC->EVENTS_END = 0;
-  NRF_SAADC->TASKS_START = 1;
-  NRF_SAADC->TASKS_SAMPLE = 1;
+  NRF_SAADC->TASKS_CALIBRATEOFFSET = 0;
+  NRF_SAADC->TASKS_START = 0;
+  NRF_SAADC->TASKS_SAMPLE = 0;
+  NRF_SAADC->TASKS_STOP = 0;
 
+  nrf_delay_us(ADC_DELAY_US); // the ADC seems to need these short breaks
+
+  NRF_SAADC->EVENTS_CALIBRATEDONE = 0;
+  NRF_SAADC->TASKS_CALIBRATEOFFSET = 1;
+  while(!NRF_SAADC->EVENTS_CALIBRATEDONE);
+
+  nrf_delay_us(ADC_DELAY_US);
+
+  NRF_SAADC->EVENTS_STARTED = 0;
+  NRF_SAADC->TASKS_START = 1;
+  while (!NRF_SAADC->EVENTS_STARTED);
+
+  NRF_SAADC->EVENTS_END = 0;
+  NRF_SAADC->TASKS_SAMPLE = 1;
   while (!NRF_SAADC->EVENTS_END);
-  
+
+  NRF_SAADC->EVENTS_STOPPED = 0;
+  NRF_SAADC->TASKS_STOP = 1;
+  while (!NRF_SAADC->EVENTS_STOPPED);
+
   return (uint16_t)(result * 0.6 /* REFERENCE */ * 6 /* GAIN */);
 #else
   // Configure ADC
@@ -100,12 +121,10 @@ void on_authorize(ble_evt_t * p_ble_evt) {
     uint16_t voltage = battery_voltage_get();
     
     if(handle == ble_bas_level_handle){
-        NRF_LOG_DEBUG("requesting level\n");
         len = 1;
         level = MIN(100, level_get(voltage));
         data = &level;
     }else if(handle == ble_bas_voltage_handle){
-        NRF_LOG_DEBUG("requesting voltage\n");
         len = 2;
         data = (uint8_t*) &voltage;
     }
