@@ -101,7 +101,7 @@ uint8_t level_get(uint16_t voltage){
 					     BATTERY_VOLTAGE_MIN) * 100.0);
 }
 
-uint8_t get_current_level(void){
+uint8_t battery_level_get(void){
   return level_get(battery_voltage_get());
 }
 
