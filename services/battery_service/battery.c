@@ -188,10 +188,18 @@ ret_code_t ble_bas_battery_char_add(uint16_t uuid, uint32_t size, uint16_t *hand
     uint32_t            err_code;
     ble_uuid_t          ble_uuid;
     
+    ble_gatts_char_pf_t char_pf = {
+        .unit = 0x2728,
+        .format = BLE_GATT_CPF_FORMAT_UINT16,
+        .name_space = 0x01,
+        .exponent = -3, // millivolts
+    };
+
     ble_gatts_char_md_t char_md = {
         .char_props.read   = 1,
         .char_props.notify = 0,
-        .char_props.write  = 0
+        .char_props.write  = 0,
+        .p_char_pf = &char_pf,
     };
 
     BLE_UUID_BLE_ASSIGN(ble_uuid, uuid);
