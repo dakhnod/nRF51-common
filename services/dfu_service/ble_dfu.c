@@ -6,12 +6,17 @@
 #include "ble_srv_common.h"
 #include "nrf_dfu_settings.h"
 #include "bootloader_secret.h"
+#include "app_timer.h"
+#include "sensor_timer.h"
 
 #define MAX_CTRL_POINT_RESP_PARAM_LEN 3
+
+#define REBOOT_TIMEOUT APP_TIMER_TICKS(500, APP_TIMER_PRESCALER)
 
 ble_dfu_t *p_m_dfu;
 
 uint8_t bootloader_secret[] = BOOTLOADER_SECRET;
+APP_TIMER_DEF(reboot_timer);
 
 
 void flash_callback(fs_evt_t const *const evt, fs_ret_t result) {
@@ -36,6 +41,10 @@ static void enter_bootloader(ble_dfu_t *p_dfu) {
     s_dfu_settings.enter_buttonless_dfu = true;
 
     (void)nrf_dfu_settings_write(flash_callback);
+
+    NRF_LOG_DEBUG("reboot requested, rebooting...\n");
+    ret_code_t err_code = app_timer_start(reboot_timer, REBOOT_TIMEOUT, NULL);
+    APP_ERROR_CHECK(err_code);
 
     /*
     TODO:
@@ -145,6 +154,13 @@ uint32_t ble_dfu_init(ble_dfu_t *p_dfu, const ble_dfu_init_t *p_dfu_init) {
     VERIFY_SUCCESS(err_code);
 
     nrf_dfu_settings_init();
+
+    err_code = app_timer_create(
+        &reboot_timer,
+        APP_TIMER_MODE_SINGLE_SHOT,
+        (app_timer_timeout_handler_t)NVIC_SystemReset
+    );
+    APP_ERROR_CHECK(err_code);
 
     return NRF_SUCCESS;
 }
