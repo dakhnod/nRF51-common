@@ -553,6 +553,13 @@ static void on_ble_evt(ble_evt_t *p_ble_evt) {
 
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
 
+            NRF_LOG_INFO("restarting long bootloader timeout\n");
+            app_timer_start(
+                application_start_timer,
+                APP_TIMER_TICKS(60000, APP_TIMER_PRESCALER),
+                NULL
+            );
+
             break;
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:

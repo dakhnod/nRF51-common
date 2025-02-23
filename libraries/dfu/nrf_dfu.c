@@ -20,6 +20,7 @@
 
 
 #define APPLICATION_START_TIMEOUT      APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)
+#define APPLICATION_START_TIMEOUT_LONG APP_TIMER_TICKS(60000, APP_TIMER_PRESCALER)
 APP_TIMER_DEF(application_start_timer);
 
 // Weak function implementation
@@ -118,11 +119,13 @@ uint32_t nrf_dfu_init() {
         enter_bootloader_mode = 1;
     }
 
+    bool bootloader_should_stay = enter_bootloader_mode;
+
     bool app_is_valid = nrf_dfu_app_is_valid();
 
-    bool start_application_timer = enter_bootloader_mode == 0 && app_is_valid;
 
-    enter_bootloader_mode |= (NRF_POWER->GPREGRET++) == 0;
+    bool first_boot = (NRF_POWER->GPREGRET++) == 0;
+    enter_bootloader_mode |= first_boot;
 
     if (enter_bootloader_mode != 0 || !app_is_valid) {
         timers_init();
@@ -137,13 +140,22 @@ uint32_t nrf_dfu_init() {
 
         (void)nrf_dfu_req_handler_init();
 
-        if (start_application_timer) {
-            NRF_LOG_INFO("starting bootloader timeout\n");
-            app_timer_start(
-                application_start_timer,
-                APPLICATION_START_TIMEOUT,
-                NULL
-            );
+        if (app_is_valid) {
+            if(bootloader_should_stay){
+                NRF_LOG_INFO("starting long bootloader timeout\n");
+                app_timer_start(
+                    application_start_timer,
+                    APPLICATION_START_TIMEOUT_LONG,
+                    NULL
+                );
+            }else{
+                NRF_LOG_INFO("starting short bootloader timeout\n");
+                app_timer_start(
+                    application_start_timer,
+                    APPLICATION_START_TIMEOUT,
+                    NULL
+                );
+            }
         }
 
         // This function will never return
