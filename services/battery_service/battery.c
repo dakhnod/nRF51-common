@@ -32,7 +32,7 @@ static void on_disconnect(ble_evt_t * p_ble_evt)
 
 uint16_t battery_voltage_get (void)
 {
-#ifdef NRF52
+#ifndef NRF51
   static uint16_t result;
   NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_REFSEL_Internal << SAADC_CH_CONFIG_REFSEL_Pos;
   NRF_SAADC->CH[0].CONFIG |= SAADC_CH_CONFIG_MODE_SE         << SAADC_CH_CONFIG_MODE_Pos;

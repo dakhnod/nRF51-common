@@ -104,7 +104,7 @@ static uint32_t rx_char_add(ble_dfu_t *p_dfu, const ble_dfu_init_t *p_dfu_init) 
     attr_char_value.p_attr_md = &attr_md;
     attr_char_value.init_len = 0;
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len = BLE_L2CAP_MTU_DEF;
+    attr_char_value.max_len = 23;
 
     return sd_ble_gatts_characteristic_add(p_dfu->service_handle,
         &char_md,

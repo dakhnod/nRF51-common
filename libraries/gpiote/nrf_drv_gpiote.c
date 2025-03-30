@@ -229,9 +229,15 @@ ret_code_t nrf_drv_gpiote_init(void)
     if (m_cb.state != NRF_DRV_STATE_UNINITIALIZED)
     {
         err_code = NRF_ERROR_INVALID_STATE;
+        #ifdef NRF51
         NRF_LOG_WARNING("Function: %s, error code: %s.\r\n",
                         (uint32_t)__func__,
                         (uint32_t)ERR_TO_STR(err_code));
+        #else
+        NRF_LOG_WARNING("Function: %s, error code: %d.\r\n",
+                        (uint32_t)__func__,
+                        err_code);
+        #endif
         return err_code;
     }
 
@@ -253,8 +259,14 @@ ret_code_t nrf_drv_gpiote_init(void)
     m_cb.state = NRF_DRV_STATE_INITIALIZED;
 
     err_code = NRF_SUCCESS;
+
+    #ifdef NRF51
     NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__,
                  (uint32_t)ERR_TO_STR(err_code));
+    #else
+    NRF_LOG_INFO("Function: %s, error code: %d.\r\n", (uint32_t)__func__,
+                 err_code);
+    #endif
     return err_code;
 }
 
@@ -338,8 +350,13 @@ ret_code_t nrf_drv_gpiote_out_init(nrf_drv_gpiote_pin_t                pin,
         }
     }
 
+    #ifdef NRF51
     NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__,
-                 (uint32_t)ERR_TO_STR(err_code));
+                (uint32_t)ERR_TO_STR(err_code));
+    #else
+    NRF_LOG_INFO("Function: %s, error code: %d.\r\n", (uint32_t)__func__,
+                err_code);
+    #endif
     return err_code;
 }
 
@@ -539,8 +556,13 @@ ret_code_t nrf_drv_gpiote_in_init(nrf_drv_gpiote_pin_t               pin,
         }
     }
 
+    #ifdef NRF51
     NRF_LOG_INFO("Function: %s, error code: %s.\r\n", (uint32_t)__func__,
-                 (uint32_t)ERR_TO_STR(err_code));
+                (uint32_t)ERR_TO_STR(err_code));
+    #else
+    NRF_LOG_INFO("Function: %s, error code: %d.\r\n", (uint32_t)__func__,
+                err_code);
+    #endif
     return err_code;
 }
 

@@ -19,8 +19,9 @@
 #define APP_TIMER_OP_QUEUE_SIZE         4                                                       /**< Size of timer operation queues. */
 
 
-#define APPLICATION_START_TIMEOUT      APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)
-#define APPLICATION_START_TIMEOUT_LONG APP_TIMER_TICKS(60000, APP_TIMER_PRESCALER)
+#define APPLICATION_START_TIMEOUT      APP_TIMER_TICKS_COMPAT(2000, APP_TIMER_PRESCALER)
+#define APPLICATION_START_TIMEOUT_LONG APP_TIMER_TICKS_COMPAT(60000, APP_TIMER_PRESCALER)
+
 APP_TIMER_DEF(application_start_timer);
 
 // Weak function implementation
