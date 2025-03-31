@@ -47,7 +47,11 @@
 #include "nrf_bitmask.h"
 #include <string.h>
 
+#ifdef S130
 #define NRF_LOG_MODULE_NAME "GPIOTE"
+#else
+#define NRF_LOG_MODULE_NAME GPIOTE
+#endif
 
 #if GPIOTE_CONFIG_LOG_ENABLED
 #define NRF_LOG_LEVEL       GPIOTE_CONFIG_LOG_LEVEL

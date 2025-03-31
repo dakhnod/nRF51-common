@@ -11,14 +11,14 @@
 
 #define MAX_CTRL_POINT_RESP_PARAM_LEN 3
 
-#define REBOOT_TIMEOUT APP_TIMER_TICKS(500, APP_TIMER_PRESCALER)
+#define REBOOT_TIMEOUT APP_TIMER_TICKS_COMPAT(500, APP_TIMER_PRESCALER)
 
 ble_dfu_t *p_m_dfu;
 
 uint8_t bootloader_secret[] = BOOTLOADER_SECRET;
 APP_TIMER_DEF(reboot_timer);
 
-
+#ifdef S130
 void flash_callback(fs_evt_t const *const evt, fs_ret_t result) {
     if (result == FS_SUCCESS) {
         NRF_LOG_INFO("Obtained settings, enter dfu is %d\n", s_dfu_settings.enter_buttonless_dfu);
@@ -28,6 +28,15 @@ void flash_callback(fs_evt_t const *const evt, fs_ret_t result) {
         p_m_dfu->is_waiting_for_disconnection = true;
     }
 }
+#else
+void flash_callback(nrf_fstorage_evt_t * p_evt) {
+    NRF_LOG_INFO("Obtained settings, enter dfu is %d\n", s_dfu_settings.enter_buttonless_dfu);
+
+    (void)sd_ble_gap_disconnect(p_m_dfu->conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+
+    p_m_dfu->is_waiting_for_disconnection = true;
+}
+#endif
 
 static void enter_bootloader(ble_dfu_t *p_dfu) {
     if (p_dfu->evt_handler != NULL) {
@@ -153,7 +162,11 @@ uint32_t ble_dfu_init(ble_dfu_t *p_dfu, const ble_dfu_init_t *p_dfu_init) {
     err_code = nrf_dfu_flash_init(true);
     VERIFY_SUCCESS(err_code);
 
+    #if S130
     nrf_dfu_settings_init();
+    #else
+    nrf_dfu_settings_init(false);
+    #endif
 
     err_code = app_timer_create(
         &reboot_timer,
@@ -346,7 +359,7 @@ static void on_write(ble_dfu_t *p_dfu, ble_evt_t const *p_ble_evt) {
 }
 
 
-void ble_dfu_on_ble_evt(ble_dfu_t *p_dfu, ble_evt_t *p_ble_evt) {
+void ble_dfu_on_ble_evt(ble_dfu_t *p_dfu, const ble_evt_t *p_ble_evt) {
     VERIFY_PARAM_NOT_NULL_VOID(p_dfu);
     VERIFY_PARAM_NOT_NULL_VOID(p_ble_evt);
 

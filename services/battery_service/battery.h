@@ -51,7 +51,7 @@ uint32_t ble_bas_init();
  * @param[in]   p_bas      Battery Service structure.
  * @param[in]   p_ble_evt  Event received from the BLE stack.
  */
-void ble_bas_on_ble_evt(ble_evt_t * p_ble_evt);
+void ble_bas_on_ble_evt(const ble_evt_t * p_ble_evt);
 
 uint8_t battery_level_get (void);
 ret_code_t ble_bas_battery_char_add(uint16_t uuid, uint32_t size, uint16_t *handle);

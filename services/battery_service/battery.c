@@ -15,13 +15,13 @@ uint16_t ble_bas_level_handle;
 uint16_t ble_bas_voltage_handle;
 uint16_t ble_bas_connection_handle = BLE_CONN_HANDLE_INVALID;
 
-static void on_connect(ble_evt_t * p_ble_evt)
+static void on_connect(const ble_evt_t * p_ble_evt)
 {
     ble_bas_connection_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
 
-static void on_disconnect(ble_evt_t * p_ble_evt)
+static void on_disconnect(const ble_evt_t * p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
     ble_bas_connection_handle = BLE_CONN_HANDLE_INVALID;
@@ -105,7 +105,7 @@ uint8_t battery_level_get(void){
   return level_get(battery_voltage_get());
 }
 
-void on_authorize(ble_evt_t * p_ble_evt) {
+void on_authorize(const ble_evt_t * p_ble_evt) {
     uint8_t * data = NULL;
     uint8_t len = 0;
     uint8_t level;
@@ -143,7 +143,7 @@ void on_authorize(ble_evt_t * p_ble_evt) {
 }
 
 
-void ble_bas_on_ble_evt(ble_evt_t * p_ble_evt)
+void ble_bas_on_ble_evt(const ble_evt_t * p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {

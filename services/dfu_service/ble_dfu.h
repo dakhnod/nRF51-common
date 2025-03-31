@@ -88,7 +88,7 @@ extern "C" {
      * @param[in]   p_dfu      DFU Service structure.
      * @param[in]   p_ble_evt  Event received from the BLE stack.
      */
-    void ble_dfu_on_ble_evt(ble_dfu_t *p_dfu, ble_evt_t *p_ble_evt);
+    void ble_dfu_on_ble_evt(ble_dfu_t *p_dfu, const ble_evt_t *p_ble_evt);
 
 
 #ifdef __cplusplus
