@@ -159,13 +159,13 @@ uint32_t ble_dfu_init(ble_dfu_t *p_dfu, const ble_dfu_init_t *p_dfu_init) {
     err_code = rx_char_add(p_dfu, p_dfu_init);
     VERIFY_SUCCESS(err_code);
 
+    #if S130
     err_code = nrf_dfu_flash_init(true);
     VERIFY_SUCCESS(err_code);
-
-    #if S130
+    
     nrf_dfu_settings_init();
     #else
-    nrf_dfu_settings_init(false);
+    nrf_dfu_settings_init(true);
     #endif
 
     err_code = app_timer_create(
