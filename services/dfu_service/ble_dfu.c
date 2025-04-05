@@ -9,6 +9,10 @@
 #include "app_timer.h"
 #include "sensor_timer.h"
 
+#if FAMILY == NRF52
+#include "nrf_fstorage.h"
+#endif
+
 #define MAX_CTRL_POINT_RESP_PARAM_LEN 3
 
 #define REBOOT_TIMEOUT APP_TIMER_TICKS_COMPAT(500, APP_TIMER_PRESCALER)
@@ -29,7 +33,7 @@ void flash_callback(fs_evt_t const *const evt, fs_ret_t result) {
     }
 }
 #else
-void flash_callback(nrf_fstorage_evt_t * p_evt) {
+void flash_callback(void * buf) {
     NRF_LOG_INFO("Obtained settings, enter dfu is %d\n", s_dfu_settings.enter_buttonless_dfu);
 
     (void)sd_ble_gap_disconnect(p_m_dfu->conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
