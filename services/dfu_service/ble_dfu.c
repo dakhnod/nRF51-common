@@ -9,7 +9,7 @@
 #include "app_timer.h"
 #include "sensor_timer.h"
 
-#if FAMILY == NRF52
+#if FAMILY == 52
 #include "nrf_fstorage.h"
 #endif
 
@@ -22,7 +22,7 @@ ble_dfu_t *p_m_dfu;
 uint8_t bootloader_secret[] = BOOTLOADER_SECRET;
 APP_TIMER_DEF(reboot_timer);
 
-#if FAMILY == NRF51
+#if FAMILY == 51
 void flash_callback(fs_evt_t const *const evt, fs_ret_t result) {
     if (result == FS_SUCCESS) {
         NRF_LOG_INFO("Obtained settings, enter dfu is %d\n", s_dfu_settings.enter_buttonless_dfu);
@@ -163,7 +163,7 @@ uint32_t ble_dfu_init(ble_dfu_t *p_dfu, const ble_dfu_init_t *p_dfu_init) {
     err_code = rx_char_add(p_dfu, p_dfu_init);
     VERIFY_SUCCESS(err_code);
 
-    #if FAMILY == NRF51
+    #if FAMILY == 51
     err_code = nrf_dfu_flash_init(true);
     VERIFY_SUCCESS(err_code);
     
