@@ -47,7 +47,7 @@
 #define MAX_RESPONSE_LEN                    (15)                                                    /**< Maximum length (in bytes) of the response to a Control Point command. */
 
 
-#if (NRF_SD_BLE_API_VERSION == 3)
+#if (NRF_SD_BLE_API_VERSION >= 3)
 #define NRF_BLE_MAX_MTU_SIZE            GATT_MTU_SIZE_DEFAULT                                       /**< MTU size used in the softdevice enabling and to reply to a BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST event. */
 #endif
 
@@ -617,7 +617,7 @@ static void on_ble_evt(ble_evt_t *p_ble_evt) {
             on_write(&m_dfu, p_ble_evt);
             break;
 
-#if (NRF_SD_BLE_API_VERSION == 3)
+#if (NRF_SD_BLE_API_VERSION >= 3)
         case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
             err_code = sd_ble_gatts_exchange_mtu_reply(p_ble_evt->evt.gatts_evt.conn_handle,
                 NRF_BLE_MAX_MTU_SIZE);
@@ -742,7 +742,7 @@ static uint32_t ble_stack_init(bool init_softdevice) {
     err_code = softdevice_enable_get_default_config(1, 1, &ble_enable_params);
     VERIFY_SUCCESS(err_code);
 
-#if (NRF_SD_BLE_API_VERSION == 3)
+#if (NRF_SD_BLE_API_VERSION >= 3)
     ble_enable_params.gatt_enable_params.att_mtu = NRF_BLE_MAX_MTU_SIZE;
 #endif    
 
